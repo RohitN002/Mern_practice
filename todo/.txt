@@ -1,0 +1,13 @@
+backend 
+jwt,
+cors
+socket
+testing
+
+frontend
+axios 
+fetch
+hooks 
+map 
+
+

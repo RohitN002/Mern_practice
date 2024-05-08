@@ -1,12 +1,11 @@
-import express from "express"
-import { CreateData,UpdateData,DeleteData,ViewData } from "../controllers/crudController.js"
+const express = require('express');
+const todoController = require('../controllers/todoController');
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/',CreateData)
+router.get('/', todoController.getTodos);
+router.post('/', todoController.createTodo);
+router.put('/:id', todoController.updateTodo);
+router.delete('/:id', todoController.deleteTodo);
 
-router.get('/',ViewData)
-router.get('/:id',UpdateData)
-router.delete('/:id',DeleteData)
-
-export default router
+module.exports = router;

@@ -1,36 +1,27 @@
-import dotenv from "dotenv"
-
-import express from 'express';
-import mongoose from 'mongoose';
-import routes from "./routes/routes.js"
-import cors from 'cors';
+const dotenv = require('dotenv')
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+// Replace with your database connection
+dotenv.config()
+const Routes = require('./routes/routes.js');
+const {  mongoose } = require('mongoose');
+const MONGODB = process.env.MONGOURI
 
 const app = express();
-
-
-dotenv.config()
-
-const PORT = process.env.PORT|| 5000;
-const mongoDBURL = process.env.MONGOURI
-
-// Middleware for parsing request body
-app.use(express.json());
-
-
+const port = process.env.PORT || 5000;
 
 app.use(cors());
+app.use(bodyParser.json());
 
-app.use('/',routes)
-
+app.use('/api/todos', Routes);
 
 mongoose
-  .connect( mongoDBURL)
-  .then(() => {
-    console.log('App connected to database');
-    app.listen(PORT, () => {
-      console.log(`App is listening to port: ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+.connect(MONGODB)
+.then (()=>{
+  console.log("App connected to database")
+})
+.catch((error)=>{
+  console.log(error.message)
+})
+app.listen(port, () => console.log(`Server listening on port ${port}`));

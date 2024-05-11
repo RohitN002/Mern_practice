@@ -4,6 +4,7 @@ import { BrowserRouter,Routes,Route
 
 import Signup from './Signup'
 import Signin from './Signin'
+import Home from './Home'
 const App = () => {
   return (
     <BrowserRouter>
@@ -11,7 +12,7 @@ const App = () => {
 <Route path='/signup'element={<Signup/>}></Route>
 
 <Route path='/signin'element={<Signin/>}></Route>
-
+<Route path='/Home' element={<Home/>}></Route>
 </Routes>
     </BrowserRouter>
   )

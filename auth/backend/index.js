@@ -7,7 +7,7 @@ const cors = require('cors')
 const app = express()
 app.use(cors())
 app.use(express.json())
-app.use('/app',router)
+app.use('/',router)
 const port = process.env.PORT
 
 app.listen(port,()=>{

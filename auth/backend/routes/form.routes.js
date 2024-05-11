@@ -3,7 +3,7 @@ const express = require('express')
 
 const router = express.Router()
 
-router('/signup',signupController)
-router('/signin',signinController)
+router.post('/signup',signupController)
+router.post('/signin',signinController)
 
 module.exports= router

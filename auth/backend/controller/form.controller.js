@@ -15,3 +15,15 @@ if (userExist){
 }
 
 }
+exports.signinController = async(req,res)=>{
+const {emailid,password}= req.params
+signup.findOne(emailid)
+.then((user)=>{
+    if(user){
+        user.password=== password
+        return res.status(200).json({message:"Sucessfully logged in"})
+    }else {
+        res.status(401).send({message:"username or email invalid"})
+    }
+})
+}

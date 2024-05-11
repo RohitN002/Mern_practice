@@ -1,18 +1,16 @@
 const express = require('express')
 const dotenv = require('dotenv')
 dotenv.config()
-const mongoose = require('mongoose')
+const connecttoDB = require('./db/connecttoDB')
+const router = require('./routes/form.routes.js')
 const cors = require('cors')
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use('/app',router)
+const port = process.env.PORT
 
-
-mongoose
-.connect(MONGODB)
-.then(()=>{
-    console.log(`app connected to database`)
-})
-.catch((err)=>{
-    console.log(err)
+app.listen(port,()=>{
+    connecttoDB()
+    console.log(`App running in PORT ${port}`)
 })

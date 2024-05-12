@@ -1,5 +1,7 @@
 const signupModel = require('../models/signupModel')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 
 const signup=async(req,res)=>{
   
@@ -30,6 +32,7 @@ const signin = async (req,res)=>{
             return res.status(401).json({message:"Mail id not registerd"})
  }
         if(existingUser){
+            const jwt = ({email:existingUser.email},JWTTOKEN ,{expiresIn:"1d"} )  
             bcrypt.compare(existingUser.password,password,(err,response)=>{
                 if(err){
                     return res.status(401).json({message:"error"})

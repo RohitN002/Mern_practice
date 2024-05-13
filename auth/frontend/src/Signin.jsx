@@ -6,7 +6,7 @@ import {Link, useNavigate} from 'react-router-dom'
 const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  axios.defaults.withCredentials=true
+ 
 const navigate=useNavigate()
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -22,8 +22,10 @@ const navigate=useNavigate()
     }
   };
 
+  axios.defaults.withCredentials=true
   const handleSubmit = async (event) => {
     event.preventDefault();
+    
 
     // Implement validation logic for email and password (e.g., email format, password strength)
     // You may use a library like yup or implement manual validation
@@ -64,7 +66,9 @@ navigate('/Home')
         required
       />
       <button type="submit">Sign In</button>
-      <button  path>Signup</button>
+      <div> 
+  <a href="/Signup">Signup</a>
+</div>
     </form>
   );
 };

@@ -35,7 +35,9 @@ default:
   
     event.preventDefault()
     try{
-
+if(password!==confirmPassword){
+return console.log(`password and confirm password doesn't match`)
+}
       const submit = axios.post(` http://localhost:8080/api/auth/signup`,{
         name,email,password
       })
@@ -86,6 +88,9 @@ default:
         required
       />
       <button type="submit">Sign Up</button>
+      <div> 
+  <a href="/Signin">Signin</a>
+</div>
     </form>
 
     </div>

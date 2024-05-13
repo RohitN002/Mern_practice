@@ -1,8 +1,15 @@
 const signupModel = require('../models/signupModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
+dotenv.config()
 const cookieParser = require('cookie-parser')
+const express = require('express')
+const app = express()
+app.use(cookieParser())
 
+const jwttoken = process.env.JWTTOKEN
+console.log(jwttoken)
 const signup=async(req,res)=>{
   
     try {
@@ -11,6 +18,7 @@ const signup=async(req,res)=>{
 if(existingUser){
    return  res.status(201).json({message:"User already exist"})
 }
+
         bcrypt.hash(password,10)
         .then(async (hash)=>{
             const newUser = signupModel({name,email,password:hash})
@@ -32,13 +40,14 @@ const signin = async (req,res)=>{
             return res.status(401).json({message:"Mail id not registerd"})
  }
         if(existingUser){
-            const jwt = ({email:existingUser.email},JWTTOKEN ,{expiresIn:"1d"} )  
-            bcrypt.compare(existingUser.password,password,(err,response)=>{
+           
+            bcrypt.compare(password,existingUser.password,(err,response)=>{
                 if(err){
                     return res.status(401).json({message:"error"})
                 }
                 if(response){
-                    
+                const token = jwt.sign({email:existingUser.email},jwttoken,{expiresIn:"1d"})
+                res.cookie("token",token)
             return res.status(200).json({message:"Loggin sucessful"})
                 }
             })

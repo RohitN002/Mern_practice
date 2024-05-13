@@ -5,7 +5,14 @@ const connecttoDB = require('./db/connecttoDB')
 const authRoutes = require('./routes/authRoutes.js')
 const cors = require('cors')
 const app = express()
-app.use(cors())
+
+
+
+app.use(cors({
+    origin:["http://localhost:5173"],
+    method:["GET","POST"],
+    credentials:true
+}));
 app.use(express.json())
 app.use('/api/auth',authRoutes)
 const port = process.env.PORT

@@ -1,0 +1,10 @@
+Random Quote Generator: Create a component that displays a random inspirational quote and its author on the screen when the refresh button is clicked.
+
+"method": "GET", "url": "https://api.api-ninjas.com/v1/quotes",
+
+"headers": { "X-Api-Key": "KC1yHAio1cGof7WBAZ4OIA==4km1Ry2EShdDac2f"},
+
+"contentType": "application/json"
+
+
+//,

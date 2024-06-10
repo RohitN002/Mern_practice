@@ -20,6 +20,7 @@ const UseCallBack: React.FC = () => {
 
   return (
     <div>
+        <h3>  useCallback  </h3>
       <p>Count: {count}</p>
       <button onClick={() => setMultiplier(multiplier + 1)}>Increase Multiplier</button>
       <Button onClick={increment} label="Increment" />

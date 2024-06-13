@@ -78,6 +78,7 @@ const TodoApp: React.FC = () => {
                 </select>
             </div>
             <ul>
+                
                 {currentTodos.map((todo) => (
                     <li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
                         {todo.text}

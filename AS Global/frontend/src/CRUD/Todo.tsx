@@ -1,45 +1,100 @@
-import React, { useState } from 'react'
-interface todos {
-    text:string,
-    id:number,
-    isCompleted:boolean,
-    isEdited:boolean,
+// src/ToDoList.tsx
 
+import React, { useState } from 'react';
+
+interface Task {
+    id: number;
+    task: string;
+    completed: boolean;
 }
-const Todo:React.FC = () => {
-    const [data,setData]=useState<string>('')
-const [todos,setTodos]=useState<todos[]>([])
-    const [loading,setLoading]=useState<boolean>(false)
 
-    const handleAddTodo =()=>{
-         if(data.trim()==='') return;
-         
-         const NewTodo:todos = {
-            text:data,
-            id:Date.now(),
-            isCompleted:false,
-            isEdited:false
-         }
-         setTodos([...todos,NewTodo])
-    }
-  return (
-    <div>
-    
-        <h3>TO DO </h3>
+const ToDo: React.FC = () => {
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [newTask, setNewTask] = useState<string>('');
+    const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+    const [editedTaskText, setEditedTaskText] = useState<string>('');
 
-        <input type="text" 
-        placeholder='Enter todo details'
-        value={data}
-        onChange={(e)=>setData(e.target.value)}/>
-        <button onClick={handleAddTodo}>Add todo</button>
-        {todos.map(todo=>(
-            <ul key={todo.id}>
+    const addTask = () => {
+        if (newTask.trim()) {
+            setTasks([...tasks, { id: Date.now(), task: newTask, completed: false }]);
+            setNewTask('');
+        }
+    };
 
-                <li> </li>
+    const startEditing = (id: number, taskText: string) => {
+        setEditingTaskId(id);
+        setEditedTaskText(taskText);
+    };
+
+    const saveEditedTask = (id: number) => {
+        if (editedTaskText.trim()) {
+            setTasks(
+                tasks.map((task) =>
+                    task.id === id ? { ...task, task: editedTaskText } : task
+                )
+            );
+        }
+        setEditingTaskId(null);
+    };
+
+    const deleteTask = (id: number) => {
+        setTasks(tasks.filter((task) => task.id !== id));
+    };
+
+    const toggleCompletion = (id: number) => {
+        setTasks(
+            tasks.map((task) =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            )
+        );
+    };
+
+    return (
+        <div>
+            <h1>To-Do List</h1>
+            <input
+                type="text"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                placeholder="Add new task"
+            />
+            <button onClick={addTask}>Add</button>
+            <ul>
+                {tasks.map((task) => (
+                    <li key={task.id}>
+                        {editingTaskId === task.id ? (
+                            <>
+                                <input
+                                    type="text"
+                                    value={editedTaskText}
+                                    onChange={(e) => setEditedTaskText(e.target.value)}
+                                    onBlur={() => saveEditedTask(task.id)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            saveEditedTask(task.id);
+                                        }
+                                    }}
+                                    autoFocus
+                                />
+                                <button onClick={() => saveEditedTask(task.id)}>Save</button>
+                            </>
+                        ) : (
+                            <>
+                                <span
+                                    style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+                                    onClick={() => toggleCompletion(task.id)}
+                                >
+                                    {task.task}
+                                </span>
+                                <button onClick={() => startEditing(task.id, task.task)}>Edit</button>
+                            </>
+                        )}
+                        <button onClick={() => deleteTask(task.id)}>Delete</button>
+                    </li>
+                ))}
             </ul>
-        ))}
-    </div>
-  )
-}
+        </div>
+    );
+};
 
-export default Todo
+export default ToDo;

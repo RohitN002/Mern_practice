@@ -1,11 +1,10 @@
-// src/ToDoList.tsx
-
 import React, { useState } from 'react';
 
 interface Task {
     id: number;
     task: string;
     completed: boolean;
+    read: boolean;
 }
 
 const ToDo: React.FC = () => {
@@ -16,7 +15,7 @@ const ToDo: React.FC = () => {
 
     const addTask = () => {
         if (newTask.trim()) {
-            setTasks([...tasks, { id: Date.now(), task: newTask, completed: false }]);
+            setTasks([...tasks, { id: Date.now(), task: newTask, completed: false, read: false }]);
             setNewTask('');
         }
     };
@@ -35,6 +34,12 @@ const ToDo: React.FC = () => {
             );
         }
         setEditingTaskId(null);
+        setEditedTaskText('');
+    };
+
+    const cancelEditing = () => {
+        setEditingTaskId(null);
+        setEditedTaskText('');
     };
 
     const deleteTask = (id: number) => {
@@ -45,6 +50,14 @@ const ToDo: React.FC = () => {
         setTasks(
             tasks.map((task) =>
                 task.id === id ? { ...task, completed: !task.completed } : task
+            )
+        );
+    };
+
+    const toggleRead = (id: number) => {
+        setTasks(
+            tasks.map((task) =>
+                task.id === id ? { ...task, read: !task.read } : task
             )
         );
     };
@@ -68,20 +81,18 @@ const ToDo: React.FC = () => {
                                     type="text"
                                     value={editedTaskText}
                                     onChange={(e) => setEditedTaskText(e.target.value)}
-                                    onBlur={() => saveEditedTask(task.id)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            saveEditedTask(task.id);
-                                        }
-                                    }}
                                     autoFocus
                                 />
                                 <button onClick={() => saveEditedTask(task.id)}>Save</button>
+                                <button onClick={cancelEditing}>Cancel</button>
                             </>
                         ) : (
                             <>
                                 <span
-                                    style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+                                    style={{
+                                        textDecoration: task.completed ? 'line-through' : 'none',
+                                        fontWeight: task.read ? 'normal' : 'bold'
+                                    }}
                                     onClick={() => toggleCompletion(task.id)}
                                 >
                                     {task.task}
@@ -89,6 +100,9 @@ const ToDo: React.FC = () => {
                                 <button onClick={() => startEditing(task.id, task.task)}>Edit</button>
                             </>
                         )}
+                        <button onClick={() => toggleRead(task.id)}>
+                            {task.read ? 'Unread' : 'Mark as Read'}
+                        </button>
                         <button onClick={() => deleteTask(task.id)}>Delete</button>
                     </li>
                 ))}

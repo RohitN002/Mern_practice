@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 interface Task {
     id: number;
@@ -12,6 +12,10 @@ const ToDoList: React.FC = () => {
     const [newTask, setNewTask] = useState<string>('');
     const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
     const [editedTaskText, setEditedTaskText] = useState<string>('');
+    const [sortField, setSortField] = useState<string>('task');
+    const [sortOrder, setSortOrder] = useState<string>('asc');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const tasksPerPage = 5;
 
     const addTask = () => {
         if (newTask.trim()) {
@@ -62,6 +66,33 @@ const ToDoList: React.FC = () => {
         );
     };
 
+    const sortedTasks = useMemo(() => {
+        return [...tasks].sort((a, b) => {
+            if (sortField === 'task') {
+                if (sortOrder === 'asc') {
+                    return a.task.localeCompare(b.task);
+                } else {
+                    return b.task.localeCompare(a.task);
+                }
+            } else if (sortField === 'completed') {
+                if (sortOrder === 'asc') {
+                    return (a.completed === b.completed) ? 0 : a.completed ? 1 : -1;
+                } else {
+                    return (a.completed === b.completed) ? 0 : a.completed ? -1 : 1;
+                }
+            }
+            return 0;
+        });
+    }, [tasks, sortField, sortOrder]);
+
+    const currentTasks = sortedTasks.slice((currentPage - 1) * tasksPerPage, currentPage * tasksPerPage);
+
+    const totalPages = Math.ceil(sortedTasks.length / tasksPerPage);
+
+    const paginate = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
         <div>
             <h1>To-Do List</h1>
@@ -72,8 +103,17 @@ const ToDoList: React.FC = () => {
                 placeholder="Add new task"
             />
             <button onClick={addTask}>Add</button>
+            <div>
+                <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
+                    <option value="task">Task</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+                    Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
+                </button>
+            </div>
             <ul>
-                {tasks.map((task) => (
+                {currentTasks.map((task) => (
                     <li key={task.id}>
                         {editingTaskId === task.id ? (
                             <>
@@ -107,6 +147,13 @@ const ToDoList: React.FC = () => {
                     </li>
                 ))}
             </ul>
+            <div>
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button key={index + 1} onClick={() => paginate(index + 1)} disabled={currentPage === index + 1}>
+                        {index + 1}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 };

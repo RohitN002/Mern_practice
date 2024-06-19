@@ -1,12 +1,12 @@
 import React, { useReducer, useState } from 'react'
 
-interface ToDo {
+interface Todo {
     id : number,
     text:string,
     completed:boolean
 }
 interface State {
-todos:ToDo[],
+todos:Todo[],
 searchQuery:string,
 sortorder:'asc'|'desc',
 currentPage:number,
@@ -20,7 +20,7 @@ type Action =
     | {type: "edit";  payload:{id:number; text:string} }
     | {type: 'setSearchQuery'; payload:string}
     | {type:'setSortOrder' ; payload:'asc'|'desc'}
-    | {type:'setCurrentpage' ; payload:number}
+    | {type:'setCurrentPage' ; payload:number}
 
 const initialState:State ={
 todos:[],
@@ -71,7 +71,7 @@ const reducer = (state:State,action:Action):State =>{
                                 sortorder:action.payload
                             }
 
-                            case 'setCurrentpage':
+                            case 'setCurrentPage':
                                 return {
                                     ...state,
                                     currentPage:action.payload
@@ -82,101 +82,112 @@ const reducer = (state:State,action:Action):State =>{
         }
     
 
-const Todo : React.FC = () => {
-    const [state,dispatch ]= useReducer (reducer,initialState)
-    const [inputText, setInputText]= useState<string>('')
-    const [isEditing,setIsEditing]= useState<boolean>(false)
-    const [currentTodo,setCurrentTodo]=useState<ToDo|null>(null)
-
-    const handleAddTodo =()=>{
-        if (inputText.trim()!==''){
-            dispatch({type:'add',payload:inputText})
-            setInputText('')
-        }
-        const handleUpdateTodo = () => {
-            if (inputText.trim() !== '' && currentTodo) {
-                dispatch({ type: 'edit', payload: { id: currentTodo.id, text: inputText } });
-                setInputText('');
-                setIsEditing(false);
-                setCurrentTodo(null);
-            }
+        const TodoApp: React.FC = () => {
+            const [state, dispatch] = useReducer(reducer, initialState);
+            const [inputValue, setInputValue] = useState('');
+            const [isEditing, setIsEditing] = useState(false);
+            const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
+        
+            const handleAddTodo = () => {
+                if (inputValue.trim() !== '') {
+                    dispatch({ type: 'add', payload: inputValue });
+                    setInputValue('');
+                }
+            };
+        
+            const handleEditTodo = (todo: Todo) => {
+                setInputValue(todo.text);
+                setIsEditing(true);
+                setCurrentTodo(todo);
+            };
+        
+            const handleUpdateTodo = () => {
+                if (inputValue.trim() !== '' && currentTodo) {
+                    dispatch({ type: 'edit', payload: { id: currentTodo.id, text: inputValue } });
+                    setInputValue('');
+                    setIsEditing(false);
+                    setCurrentTodo(null);
+                }
+            };
+        
+            const filteredTodos = state.todos.filter(todo =>
+                todo.text.toLowerCase().includes(state.searchQuery.toLowerCase())
+            );
+        
+            const sortedTodos = filteredTodos.sort((a, b) => {
+                if (state.sortorder === 'asc') {
+                    return a.text.localeCompare(b.text);
+                } else {
+                    return b.text.localeCompare(a.text);
+                }
+            });
+        
+            const indexOfLastTodo = state.currentPage * state.todosPerPage;
+            const indexOfFirstTodo = indexOfLastTodo - state.todosPerPage;
+            const currentTodos = sortedTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+        
+            const totalPages = Math.ceil(sortedTodos.length / state.todosPerPage);
+        
+            return (
+                <div>
+                    <h1>Todo App</h1>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Enter a new todo"
+                    />
+                    {isEditing ? (
+                        <button onClick={handleUpdateTodo}>Update Todo</button>
+                    ) : (
+                        <button onClick={handleAddTodo}>Add Todo</button>
+                    )}
+                    <div>
+                        <input
+                            type="text"
+                            placeholder="Search todos"
+                            value={state.searchQuery}
+                            onChange={(e) => dispatch({ type: 'setSearchQuery', payload: e.target.value })}
+                        />
+                        <select
+                            value={state.sortorder}
+                            onChange={(e) => dispatch({ type: 'setSortOrder', payload: e.target.value as 'asc' | 'desc' })}
+                        >
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
+                    <ul>
+                        
+                        {currentTodos.map((todo) => (
+                            <li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+                                {todo.text}
+                                <button onClick={() => dispatch({ type: 'toggle', payload: todo.id })}>
+                                    {todo.completed ? 'Undo' : 'Complete'}
+                                </button>
+                                <button onClick={() => handleEditTodo(todo)}>Edit</button>
+                                <button onClick={() => dispatch({ type: 'delete', payload: todo.id })}>Delete</button>
+                            </li>
+                        ))}
+                    </ul>
+                    <div>
+                        <button
+                            onClick={() => dispatch({ type: 'setCurrentPage', payload: state.currentPage - 1 })}
+                            disabled={state.currentPage === 1}
+                        >
+                            Previous
+                        </button>
+                        <span>{state.currentPage} of {totalPages}</span>
+                        <button
+                            onClick={() => dispatch({ type: 'setCurrentPage', payload: state.currentPage + 1 })}
+                            disabled={state.currentPage === totalPages}
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            );
         };
-const handleEditTodo = (todo:ToDo)=>{
-setInputText(todo.text)
-setIsEditing(true)
-setCurrentTodo(todo)
-}
-
-const filteredTodos = state.todos.filter(todo =>
-    todo.text.toLowerCase().includes(state.searchQuery.toLowerCase())
-);
-
-   
-
-    const sortedTodos = filteredTodos.sort((a,b)=>{
-        if(state.sortorder=='asc'){
-            return a.text.localeCompare(b.text)
-        }else{
-            return b.text.localeCompare(a.text)
-        }
-    })
-
-const indexOfLastTodo = state.currentPage* state.todosPerPage;
-const indexOfFirstTodo = indexOfLastTodo - state.todosPerPage;
-const currentTodos = sortedTodos.slice(indexOfFirstTodo,indexOfLastTodo);
-const totalPages = Math.ceil(sortedTodos.length/state.todosPerPage);
-
-  return (
-    <div> <h3> TOdo </h3>
-<input type="text"
-value={inputText} 
-onChange={(e)=>setInputText(e.target.value)}
-placeholder='Enter todo'/>
-{
-    isEditing? (
-        <button onClick={handleUpdateTodo}>updateTodo  </button>
-    ):(
-        <button onClick={handleAddTodo}>Add todo</button>
-    )
-}
-<div>
-    <input type="text"
-    placeholder='search todos ' 
-    value={state.searchQuery}
-    onChange={(e)=>dispatch({
-        type:'setSearchQuery', payload:e.target.value
-    })}/>
-    <select
-    value={state.sortorder}
- onChange={(e)=>dispatch({type:'setSortOrder',
-    payload:e.target.value as 'asc' |'desc'
- })}
-    >
-        <option value="asc">Ascending</option>
-        <option value="desc">Descending</option>
-    </select>
-</div>
-<ul>
-{
-    currentTodos.map((todo)=>(
-        <li key={todo.id} style={{textDecoration: todo.completed ? 'line-through' : 'none'}}>
-            {todo.text}
-            <button onClick={()=>handleEditTodo(todo)}>Edit</button>
-            <button onClick={()=>dispatch({type:'delete',payload:todo.id})}>Delete</button>
-        </li>
-    ))
-}
-</ul>
-<div>
-    <button onClick={()=>dispatch({type:'setCurrentpage',payload:state.currentPage-1})} >previous</button>
-    <span>{state.currentPage}of {totalPages}</span>
-    <button 
-    onClick={()=>dispatch({type:'setCurrentpage',payload:state.currentPage+1})}>
-    next
-    </button>
-</div>
-    </div>
-  )
-}
-
-export default Todo
+        
+        export default TodoApp;
+        
